@@ -15,6 +15,7 @@ import org.json.JSONException;
 import java.util.concurrent.Callable;
 
 /**
+ * 上传图片单个任务
  * Created by dam on 2014/11/19.
  */
 public class UploadImgCallable implements Callable<String> {

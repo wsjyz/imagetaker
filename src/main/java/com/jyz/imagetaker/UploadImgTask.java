@@ -19,6 +19,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
 /**
+ * 上传图片线程处理
  * Created by dam on 2014/11/19.
  */
 public class UploadImgTask {
@@ -34,11 +35,5 @@ public class UploadImgTask {
         }
 
     }
-
-    public static void main(String[] args) {
-        UploadImgTask uploadImgTask = new UploadImgTask();
-
-    }
-
 
 }
