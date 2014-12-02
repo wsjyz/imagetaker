@@ -121,7 +121,7 @@ public class AnalysisEvernote {
 				String line = str[i];
 				String data = line;
 				data = getStr(line, data);
-				if (StringUtils.isNotEmpty(data)) {
+				if (StringUtils.isNotEmpty(data)) { 
 					String[] datas = data.split("=");
 					map.put(datas[0].trim(),datas[1].trim());
 				}
