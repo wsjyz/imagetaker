@@ -29,7 +29,11 @@
             <artifactId>sdk</artifactId>
             <version>[6.1.7, 6.999]</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.evernote</groupId>
+            <artifactId>evernote-api</artifactId>
+            <version>1.25.1</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -46,7 +50,7 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.jyz.imagetaker.PathWorker</mainClass>
+                                    <mainClass>com.jyz.imagetaker.ApplicationMain</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
