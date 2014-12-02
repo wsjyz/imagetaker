@@ -29,6 +29,11 @@
             <artifactId>sdk</artifactId>
             <version>[6.1.7, 6.999]</version>
         </dependency>
+	   <dependency>
+	        <groupId>org.apache.commons</groupId>
+	        <artifactId>commons-lang3</artifactId>
+	        <version>3.1</version>
+	    </dependency>
         <dependency>
             <groupId>com.evernote</groupId>
             <artifactId>evernote-api</artifactId>
