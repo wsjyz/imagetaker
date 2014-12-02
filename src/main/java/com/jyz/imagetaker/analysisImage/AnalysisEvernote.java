@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.evernote.edam.error.EDAMNotFoundException;
+import com.evernote.thrift.TException;
 import org.apache.commons.lang3.StringUtils;
 
 import com.evernote.auth.EvernoteAuth;
@@ -20,83 +22,86 @@ import com.evernote.edam.type.Note;
 import com.evernote.edam.type.NoteSortOrder;
 import com.evernote.edam.type.Notebook;
 import com.evernote.thrift.transport.TTransportException;
+import org.apache.log4j.Logger;
 
 public class AnalysisEvernote {
-	// 去这里申请一Token https://sandbox.evernote.com/api/DeveloperToken.action
+
+    protected Logger logger = Logger.getLogger(AnalysisEvernote.class);
+
+    // 去这里申请一Token https://sandbox.evernote.com/api/DeveloperToken.action
 	private static final String AUTH_TOKEN = "S=s1:U=8fee5:E=1513f302daa:C=149e77efea0:P=1cd:A=en-devtoken:V=2:H=c51eaf9567047bc98b3eccc0ded28070";
+
+    public static Map<String,String> confMap;
 
 	private UserStoreClient userStore;
 	private NoteStoreClient noteStore;
 
-	public static void main(String[] args) {
-		String token = System.getenv("AUTH_TOKEN");
-		if (token == null) {
-			token = AUTH_TOKEN;
-		}
-		if ("".equals(token)) {
-			System.err.println("去这里申请一个Token https://sandbox.evernote.com/api/DeveloperToken.action");
-			return ;
-		}
-		try {
-			AnalysisEvernote demo;
-			try {
-				demo = new AnalysisEvernote(token);
-				demo.listNotes();
-			} catch (EDAMUserException e) {
-				// ��处理的异
-				if (e.getErrorCode() == EDAMErrorCode.AUTH_EXPIRED) {
-					System.err.println("授权的Token已经过期");
-				} else if (e.getErrorCode() == EDAMErrorCode.INVALID_AUTH) {
-					System.err.println("无效的授权Token");
-				} else if (e.getErrorCode() == EDAMErrorCode.QUOTA_REACHED) {
-					System.err.println("无效的授权Token");
-				} else {
-					System.err.println("错误" + e.getErrorCode().toString()
-							+ " 参数" + e.getParameter());
-				}
-			} catch (EDAMSystemException e) {
-				System.err.println("系统错误" + e.getErrorCode().toString());
-			} catch (TTransportException t) {
-				System.err.println("网络错误" + t.getMessage());
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+    private static AnalysisEvernote instance;
 
+    public static AnalysisEvernote getInstance(){
+        if(instance == null){
+            instance = new AnalysisEvernote();
+        }
+        return instance;
+    }
 	/**
 	 * 初始UserStore and NoteStore 客户
 	 */
-	public AnalysisEvernote(String token) throws Exception {
-		if (token == null) {
-			token = AUTH_TOKEN;
-		}
-		// 设置 UserStore 的客户端并且��和服务器的连
+	private AnalysisEvernote() {
+
 		EvernoteAuth evernoteAuth = new EvernoteAuth(EvernoteService.SANDBOX,
-				token);
+                AUTH_TOKEN);
 		ClientFactory factory = new ClientFactory(evernoteAuth);
-		userStore = factory.createUserStoreClient();
+        try {
+            userStore = factory.createUserStoreClient();
+        } catch (TTransportException e) {
+            e.printStackTrace();
+        }
 
-		boolean versionOk = userStore.checkVersion("Evernote EDAMDemo (Java)",
-				com.evernote.edam.userstore.Constants.EDAM_VERSION_MAJOR,
-				com.evernote.edam.userstore.Constants.EDAM_VERSION_MINOR);
-		if (!versionOk) {
-			System.err.println("不兼容的Evernote客户端协");
-			System.exit(1);
+        boolean versionOk = false;
+        try {
+            versionOk = userStore.checkVersion("Evernote EDAMDemo (Java)",
+                    com.evernote.edam.userstore.Constants.EDAM_VERSION_MAJOR,
+                    com.evernote.edam.userstore.Constants.EDAM_VERSION_MINOR);
+        } catch (TException e) {
+            e.printStackTrace();
+        }
+        if (!versionOk) {
+            logger.error("不兼容的Evernote客户端协");
 		}
-
+        logger.info("读取配置信息！");
 		// 设置 NoteStore 客户
-		noteStore = factory.createNoteStoreClient();
-	}
+        try {
+            noteStore = factory.createNoteStoreClient();
+        } catch (EDAMUserException e) {
+            if (e.getErrorCode() == EDAMErrorCode.AUTH_EXPIRED) {
+                logger.error("授权的Token已经过期");
+            } else if (e.getErrorCode() == EDAMErrorCode.INVALID_AUTH) {
+                logger.error("无效的授权Token");
+            } else if (e.getErrorCode() == EDAMErrorCode.QUOTA_REACHED) {
+                logger.error("无效的授权Token");
+            } else {
+                logger.error("错误" + e.getErrorCode().toString()
+                        + " 参数" + e.getParameter());
+            }
+        } catch (EDAMSystemException e) {
+            logger.error("系统错误" + e.getErrorCode().toString());
+        } catch (TException e) {
+            logger.error("网络错误" + e.getMessage());
+        }
+    }
 
 	/**
 	 * 获取并显示用户的笔记列表
 	 */
-	public Map<String, String> listNotes() throws Exception {
+	public Map<String, String> listNotes() {
+
+        confMap = new HashMap<String, String>();
+        try {
 		// 列出用户的Notes
 		// 首先，获取一个笔记本的列
 		List<Notebook> notebooks = noteStore.listNotebooks();
-		Map<String, String> map = new HashMap<String, String>();
+
 		for (Notebook notebook : notebooks) {
 			// 然后，搜索笔记本中前100个笔记并按创建日期排
 			NoteFilter filter = new NoteFilter();
@@ -108,10 +113,28 @@ public class AnalysisEvernote {
 			for (Note note : notes) {
 				Note fullNote = noteStore.getNote(note.getGuid(), true, true,
 						false, false);
-				getDataByString(map, fullNote.getContent());
+				getDataByString(confMap, fullNote.getContent());
 			}
 		}
-		return map;
+        } catch (EDAMUserException e) {
+            if (e.getErrorCode() == EDAMErrorCode.AUTH_EXPIRED) {
+                logger.error("授权的Token已经过期");
+            } else if (e.getErrorCode() == EDAMErrorCode.INVALID_AUTH) {
+                logger.error("无效的授权Token");
+            } else if (e.getErrorCode() == EDAMErrorCode.QUOTA_REACHED) {
+                logger.error("无效的授权Token");
+            } else {
+                logger.error("错误" + e.getErrorCode().toString()
+                        + " 参数" + e.getParameter());
+            }
+        } catch (EDAMSystemException e) {
+            logger.error("系统错误" + e.getErrorCode().toString());
+        } catch (TException e) {
+            logger.error("网络错误" + e.getMessage());
+        }catch(EDAMNotFoundException e){
+            e.printStackTrace();
+        }
+		return confMap;
 	}
 
 	private void getDataByString(Map<String, String> map, String content) {
