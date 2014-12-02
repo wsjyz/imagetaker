@@ -18,9 +18,10 @@ public class ImageCompose {
 	 * @param filePath 下载地址
 	 * @param fileVersion 存放路径
 	 * @param imageName 图片名称
+	 * @param imageType 图片格式
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static void getImageGenerate(String filePath,String fileVersion,String imageName){
+	public static void getImageGenerate(String filePath,String fileVersion,String imageName,String imageType){
 		try {
 			//解析成二维码图片
 			MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
@@ -29,19 +30,20 @@ public class ImageCompose {
 			hints.put(EncodeHintType.MARGIN, 1);
 			BitMatrix bitMatrix = multiFormatWriter.encode(filePath,
 					BarcodeFormat.QR_CODE, 50, 50, hints);
-			File file1 = new File(fileVersion, imageName+".jpg");
-			MatrixToImageWriter.writeToFile(bitMatrix, "jpg", file1);
+			File file1 = new File(fileVersion, imageName+"."+imageType);
+			MatrixToImageWriter.writeToFile(bitMatrix, imageType, file1);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	/**
 	 * 合成2张图片成为新图片
-	 * @param fileVersion1
-	 * @param fileVersion2
-	 * @param fileVersion3
+	 * @param fileVersion1 主图片路径
+	 * @param fileVersion2 二维码图片路径
+	 * @param fileVersion3 生成图片路径
+	 * @param imageType 图片格式
 	 */
-	public static void getImageCompose(String fileVersion1,String fileVersion2,String fileVersion3){
+	public static void getImageCompose(String fileVersion1,String fileVersion2,String fileVersion3,String imageType){
 		try {
 			// 读取第一张图
 			File fileOne = new File(fileVersion1);
@@ -64,7 +66,7 @@ public class ImageCompose {
 			ImageNew.setRGB(0, 0, width, height, ImageArrayOne, 0, width);// 设置左半部分的RGB
 			ImageNew.setRGB(width-50, height-50, 50, 50, ImageArrayTwo, 0, 50);// 设置右半部分的RGB
 			File outFile = new File(fileVersion3);
-			ImageIO.write(ImageNew, "jpg", outFile);// 写图
+			ImageIO.write(ImageNew, imageType, outFile);// 写图
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
