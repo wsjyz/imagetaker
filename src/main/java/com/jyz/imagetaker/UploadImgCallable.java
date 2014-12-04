@@ -1,5 +1,7 @@
 package com.jyz.imagetaker;
 
+import com.jyz.imagetaker.analysisImage.AnalysisEvernote;
+import com.jyz.imagetaker.analysisImage.ImageCompose;
 import com.qiniu.api.auth.AuthException;
 import com.qiniu.api.auth.digest.Mac;
 import com.qiniu.api.config.Config;
@@ -10,6 +12,8 @@ import com.qiniu.api.rs.GetPolicy;
 import com.qiniu.api.rs.PutPolicy;
 import com.qiniu.api.rs.URLUtils;
 import org.apache.commons.codec.EncoderException;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.json.JSONException;
 
 import java.util.concurrent.Callable;
@@ -19,6 +23,8 @@ import java.util.concurrent.Callable;
  * Created by dam on 2014/11/19.
  */
 public class UploadImgCallable implements Callable<String> {
+
+    protected static Logger logger = Logger.getLogger(UploadImgCallable.class);
 
     public String accessKey;
     public String secretKey;
@@ -51,7 +57,7 @@ public class UploadImgCallable implements Callable<String> {
         }
         PutExtra extra = new PutExtra();
         String key = UUIDGen.genShortPK();
-        System.out.println("上传"+fileUri);
+        logger.info("上传" + fileUri);
         PutRet ret = IoApi.putFile(uptoken, key, fileUri, extra);
         //获取下载地址
         if(ret.ok()){
@@ -69,11 +75,18 @@ public class UploadImgCallable implements Callable<String> {
             } catch (AuthException e) {
                 e.printStackTrace();
             }
-            System.out.println("上传成功："+downloadUrl);
+            logger.info("上传成功：" + downloadUrl);
+
+            String newFilePath = AnalysisEvernote.confMap.get("newFilePath");
+            if(StringUtils.isBlank(newFilePath)){
+                newFilePath = Constants.NEW_FILE_PATH;
+                logger.error("没有设置新文件存放路径(key=newFilePath),使用默认路径"+Constants.NEW_FILE_PATH);
+            }
+            ImageCompose.fixImage(downloadUrl,fileUri,newFilePath);
         }else{
 
             result = ret.getResponse();
-            System.out.println("上传失败："+result);
+            logger.info("上传失败：" + result);
         }
         return result;
     }

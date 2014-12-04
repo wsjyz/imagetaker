@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.evernote.edam.error.EDAMNotFoundException;
 import com.evernote.thrift.TException;
+import com.jyz.imagetaker.Constants;
 import org.apache.commons.lang3.StringUtils;
 
 import com.evernote.auth.EvernoteAuth;
@@ -28,9 +29,6 @@ public class AnalysisEvernote {
 
     protected Logger logger = Logger.getLogger(AnalysisEvernote.class);
 
-    // 去这里申请一Token https://sandbox.evernote.com/api/DeveloperToken.action
-	private static final String AUTH_TOKEN = "S=s1:U=8fee5:E=1513f302daa:C=149e77efea0:P=1cd:A=en-devtoken:V=2:H=c51eaf9567047bc98b3eccc0ded28070";
-
     public static Map<String,String> confMap;
 
 	private UserStoreClient userStore;
@@ -50,7 +48,7 @@ public class AnalysisEvernote {
 	private AnalysisEvernote() {
 
 		EvernoteAuth evernoteAuth = new EvernoteAuth(EvernoteService.SANDBOX,
-                AUTH_TOKEN);
+                Constants.AUTH_TOKEN);
 		ClientFactory factory = new ClientFactory(evernoteAuth);
         try {
             userStore = factory.createUserStoreClient();

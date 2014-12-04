@@ -11,42 +11,68 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.common.BitMatrix;
+import com.sun.org.apache.xpath.internal.SourceTree;
+import org.apache.log4j.Logger;
 
 public class ImageCompose {
+
+    protected static Logger logger = Logger.getLogger(ImageCompose.class);
+
+    public static String fixImage(String downloadUrl,String srcImgPath,String descImgPath){
+        String result = "";
+        String tdFilePath = getImageGenerate(downloadUrl,srcImgPath);
+        getImageCompose(srcImgPath,tdFilePath,descImgPath);
+        return result;
+    }
 	/**
 	 * 
-	 * @param filePath 下载地址
-	 * @param fileVersion 存放路径
-	 * @param imageName 图片名称
-	 * @param imageType 图片格式
+	 * @param downloadPath 下载地址
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static void getImageGenerate(String filePath,String fileVersion,String imageName,String imageType){
+	public static String getImageGenerate(String downloadPath,String imagePath){
+
+        String tdFilePath = "";
 		try {
 			//解析成二维码图片
 			MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
 			Map hints = new HashMap();
 			hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
 			hints.put(EncodeHintType.MARGIN, 1);
-			BitMatrix bitMatrix = multiFormatWriter.encode(filePath,
+			BitMatrix bitMatrix = multiFormatWriter.encode(downloadPath,
 					BarcodeFormat.QR_CODE, 50, 50, hints);
-			File file1 = new File(fileVersion, imageName+"."+imageType);
-			MatrixToImageWriter.writeToFile(bitMatrix, imageType, file1);
-		} catch (Exception e) {
+            String imgSuffix = "";
+            if(imagePath.indexOf(".") != -1){
+                imgSuffix = imagePath.substring(imagePath.lastIndexOf(".") + 1);
+            }
+            File imageFile = new File(imagePath);
+            String imageName = "";
+            if(imageFile.exists()){
+                imageName = imageFile.getName().substring(0,imageFile.getName().lastIndexOf("."));
+            }
+            File tdFileDirectory = new File(imageFile.getParent()+"\\td");
+            if(!tdFileDirectory.exists()){
+                tdFileDirectory.mkdirs();
+            }
+			File tdFile = new File(imageFile.getParent()+"\\td", imageName+"_td."+imgSuffix);
+
+			MatrixToImageWriter.writeToFile(bitMatrix, imgSuffix, tdFile);
+
+            tdFilePath = tdFile.getPath();
+        } catch (Exception e) {
 			e.printStackTrace();
 		}
+        return tdFilePath;
 	}
 	/**
 	 * 合成2张图片成为新图片
-	 * @param fileVersion1 主图片路径
-	 * @param fileVersion2 二维码图片路径
-	 * @param fileVersion3 生成图片路径
-	 * @param imageType 图片格式
+	 * @param srcImagePath 主图片路径
+	 * @param tdFilePath 二维码图片路径
+	 * @param newFilePath 生成图片路径
 	 */
-	public static void getImageCompose(String fileVersion1,String fileVersion2,String fileVersion3,String imageType){
+	public static void getImageCompose(String srcImagePath,String tdFilePath,String newFilePath){
 		try {
 			// 读取第一张图
-			File fileOne = new File(fileVersion1);
+			File fileOne = new File(srcImagePath);
 			BufferedImage ImageOne = ImageIO.read(fileOne);
 			int width = ImageOne.getWidth();// 图片宽度
 			int height = ImageOne.getHeight();// 图片高度
@@ -55,7 +81,7 @@ public class ImageCompose {
 			ImageArrayOne = ImageOne.getRGB(0, 0, width, height, ImageArrayOne,
 					0, width);
 			// 对第二张图片做相同的处理
-			File fileTwo = new File(fileVersion2);
+			File fileTwo = new File(tdFilePath);
 			BufferedImage ImageTwo = ImageIO.read(fileTwo);
 			int[] ImageArrayTwo = new int[50 * 50];
 			ImageArrayTwo = ImageTwo.getRGB(0, 0, 50, 50, ImageArrayTwo,
@@ -65,13 +91,26 @@ public class ImageCompose {
 					BufferedImage.TYPE_INT_RGB);
 			ImageNew.setRGB(0, 0, width, height, ImageArrayOne, 0, width);// 设置左半部分的RGB
 			ImageNew.setRGB(width-50, height-50, 50, 50, ImageArrayTwo, 0, 50);// 设置右半部分的RGB
-			File outFile = new File(fileVersion3);
-			ImageIO.write(ImageNew, imageType, outFile);// 写图
+
+            File newFileDirectory = new File(newFilePath);
+            if(!newFileDirectory.exists()){
+                newFileDirectory.mkdirs();
+            }
+			File outFile = new File(newFilePath+"\\"+fileOne.getName());
+
+            String imgSuffix = "";
+            if(srcImagePath.indexOf(".") != -1){
+                imgSuffix = srcImagePath.substring(srcImagePath.lastIndexOf(".") + 1);
+            }
+
+			ImageIO.write(ImageNew, imgSuffix, outFile);// 写图
+
+            //删除二维码
+            fileTwo.delete();
+            logger.info(srcImagePath+" 二维码生成完毕");
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-	public static void main(String[] args) {
-		System.out.println("1");
 	}
 }

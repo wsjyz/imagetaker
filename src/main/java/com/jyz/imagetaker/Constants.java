@@ -10,5 +10,6 @@ public interface Constants {
     String BUCKET_NAME = "akdd";
     String DOMAIN = "akdd.qiniudn.com";
     String UPLOAD_IMAGE_PATH = "c:/uploadImagePath";
+    String NEW_FILE_PATH = "c:/newFilePath";
     String AUTH_TOKEN = "S=s1:U=8fee5:E=1513f302daa:C=149e77efea0:P=1cd:A=en-devtoken:V=2:H=c51eaf9567047bc98b3eccc0ded28070";
 }
