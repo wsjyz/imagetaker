@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 
 
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * 程序入口
@@ -17,7 +18,10 @@ public class ApplicationMain {
     private static Map<String,String> confMap = AnalysisEvernote.getInstance().listNotes();
 
     public void runApp(){
-        String imagePath = confMap.get("uploadImagePath");
+
+        String imagePath = FileUtils.getPropertiesValue(
+                 FileUtils.findJarPath(),"uploadImagePath");
+
         if(imagePath == null){
             logger.info("没有设置相片上传目录(key=uploadImagePath),使用"+Constants.UPLOAD_IMAGE_PATH);
             imagePath = Constants.UPLOAD_IMAGE_PATH;
@@ -30,5 +34,6 @@ public class ApplicationMain {
 
         ApplicationMain main = new ApplicationMain();
         main.runApp();
+
     }
 }

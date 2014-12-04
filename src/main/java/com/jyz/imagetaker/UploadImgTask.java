@@ -1,22 +1,9 @@
 package com.jyz.imagetaker;
 
 import com.jyz.imagetaker.analysisImage.AnalysisEvernote;
-import com.qiniu.api.auth.AuthException;
-import com.qiniu.api.auth.digest.Mac;
-import com.qiniu.api.config.Config;
-import com.qiniu.api.io.IoApi;
-import com.qiniu.api.io.PutExtra;
-import com.qiniu.api.io.PutRet;
-import com.qiniu.api.rs.GetPolicy;
-import com.qiniu.api.rs.PutPolicy;
-import com.qiniu.api.rs.URLUtils;
-import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
-import org.apache.commons.codec.EncoderException;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.json.JSONException;
-
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;

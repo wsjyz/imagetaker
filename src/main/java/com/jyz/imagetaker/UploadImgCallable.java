@@ -77,7 +77,9 @@ public class UploadImgCallable implements Callable<String> {
             }
             logger.info("上传成功：" + downloadUrl);
 
-            String newFilePath = AnalysisEvernote.confMap.get("newFilePath");
+            String newFilePath = FileUtils.getPropertiesValue(
+                    FileUtils.findJarPath(),"newFilePath")
+                    ;
             if(StringUtils.isBlank(newFilePath)){
                 newFilePath = Constants.NEW_FILE_PATH;
                 logger.error("没有设置新文件存放路径(key=newFilePath),使用默认路径"+Constants.NEW_FILE_PATH);

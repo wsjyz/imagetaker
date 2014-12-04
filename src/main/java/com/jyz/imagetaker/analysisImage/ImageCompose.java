@@ -11,7 +11,6 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.common.BitMatrix;
-import com.sun.org.apache.xpath.internal.SourceTree;
 import org.apache.log4j.Logger;
 
 public class ImageCompose {
@@ -41,7 +40,7 @@ public class ImageCompose {
 			BitMatrix bitMatrix = multiFormatWriter.encode(downloadPath,
 					BarcodeFormat.QR_CODE, 50, 50, hints);
             String imgSuffix = "";
-            if(imagePath.indexOf(".") != -1){
+            if(imagePath.contains(".")){
                 imgSuffix = imagePath.substring(imagePath.lastIndexOf(".") + 1);
             }
             File imageFile = new File(imagePath);
@@ -99,7 +98,7 @@ public class ImageCompose {
 			File outFile = new File(newFilePath+"\\"+fileOne.getName());
 
             String imgSuffix = "";
-            if(srcImagePath.indexOf(".") != -1){
+            if(srcImagePath.contains(".")){
                 imgSuffix = srcImagePath.substring(srcImagePath.lastIndexOf(".") + 1);
             }
 
