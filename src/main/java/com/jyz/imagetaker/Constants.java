@@ -11,5 +11,9 @@ public interface Constants {
     String DOMAIN = "akdd.qiniudn.com";
     String UPLOAD_IMAGE_PATH = "c:/uploadImagePath";
     String NEW_FILE_PATH = "c:/newFilePath";
-    String AUTH_TOKEN = "S=s1:U=8fee5:E=1513f302daa:C=149e77efea0:P=1cd:A=en-devtoken:V=2:H=c51eaf9567047bc98b3eccc0ded28070";
+   /**
+    * https://sandbox.evernote.com 需登录这个网址创建
+    * 765944401@qq.com heli115781
+    */
+    String AUTH_TOKEN = "S=s1:U=8fee5:E=1516bdce891:C=14a142bbb50:P=1cd:A=en-devtoken:V=2:H=b71050ff44e42d91ea1d259cc969567c";
 }
