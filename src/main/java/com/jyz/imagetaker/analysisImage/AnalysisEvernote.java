@@ -138,13 +138,15 @@ public class AnalysisEvernote {
 	}
 
 	private void getDataByString(Map<String, Object> map, String content) {
-		content=content.replace("***********************************************************", "###");
+		content=content.replace("************************************************************", "###");
 		String[] st = content.split("###");
 		String content2=st[2];
 		content2=content2.replace("</div><div>", "<br clear=\"none\"/>");
 		content2=content2.replace("<div>", "");
+		content2=content2.replace("</p><p>", "<br clear=\"none\"/>");
 		content2=content2.replace("</div>", "");
 		content2=content2.replace("</en-note>", "");
+		content2=content2.replace("</p>", "");
 		String[] str=content2.split("<br clear=\"none\"/>");
 		if (str.length > 0) {
 			for (int i = 1; i < str.length; i++) {
