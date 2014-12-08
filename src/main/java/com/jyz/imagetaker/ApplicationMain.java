@@ -31,7 +31,7 @@ public class ApplicationMain {
     }
 
     public static void main(String[] args) {
-
+        System.out.println(ApplicationMain.confMap.get("ACCESS_KEY"));
         ApplicationMain main = new ApplicationMain();
         main.runApp();
 
