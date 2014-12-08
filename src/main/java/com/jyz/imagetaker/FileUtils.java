@@ -1,9 +1,6 @@
 package com.jyz.imagetaker;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.util.Properties;
 
 /**
@@ -34,7 +31,8 @@ public class FileUtils {
         Properties p = new Properties();
         try {
 
-            InputStream in = new FileInputStream(filePath + "conf.properties");
+            StringReader in = new StringReader(readFileToString(filePath + "conf.properties"));
+
             p.load(in);
 
         } catch (IOException e) {
@@ -42,6 +40,41 @@ public class FileUtils {
         }
 
         return p.getProperty(key);
+    }
+
+    /**
+     * 之所以有这个方法是因为install4j这个软件的bug，获取Directory chooser路径为反斜杠
+     * java.util.Properties一读取就报错
+     * @param filePath
+     * @return
+     */
+    public static String readFileToString(String filePath){
+        StringBuilder sb = new StringBuilder("");
+
+        FileReader fr = null;
+        try {
+            fr = new FileReader(filePath);
+
+            BufferedReader br = new BufferedReader (fr);
+
+            String s = "";
+
+            while ((s = br.readLine() )!=null) {
+                s = s.replaceAll("\\\\", "//");
+                sb.append(s+"\n");
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                fr.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return sb.toString();
     }
 
 }

@@ -15,5 +15,5 @@ public interface Constants {
     * https://sandbox.evernote.com 需登录这个网址创建
     * 765944401@qq.com heli115781
     */
-    String AUTH_TOKEN = "S=s1:U=8fee5:E=1516bdce891:C=14a142bbb50:P=1cd:A=en-devtoken:V=2:H=b71050ff44e42d91ea1d259cc969567c";
+    String AUTH_TOKEN = "S=s1:U=8fff3:E=151753ea6ae:C=14a1d8d7710:P=1cd:A=en-devtoken:V=2:H=455f45e8bc60416f6f6c61e63273da83";
 }
