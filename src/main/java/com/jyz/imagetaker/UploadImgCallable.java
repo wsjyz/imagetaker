@@ -16,6 +16,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 /**
@@ -56,7 +59,14 @@ public class UploadImgCallable implements Callable<String> {
             e.printStackTrace();
         }
         PutExtra extra = new PutExtra();
-        String key = UUIDGen.genShortPK();
+
+        String qnUserName = FileUtils.getPropertiesValue(
+                FileUtils.findJarPath(),"qnUserName");
+        Map<String,String> userInfoMap = (Map<String,String>)AnalysisEvernote.confMap.get(qnUserName);
+        String bn = userInfoMap.get("bucketName");
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+        String fileName = fileUri.substring(fileUri.lastIndexOf("\\") + 1,fileUri.length());
+        String key = format.format(new Date()) + "/" +bn + "/" + fileName;
         logger.info("上传" + fileUri);
         PutRet ret = IoApi.putFile(uptoken, key, fileUri, extra);
         //获取下载地址
