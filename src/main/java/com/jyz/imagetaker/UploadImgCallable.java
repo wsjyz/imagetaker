@@ -78,7 +78,7 @@ public class UploadImgCallable implements Callable<String> {
             logger.info("上传成功：" + downloadUrl);
 
             String newFilePath = FileUtils.getPropertiesValue(
-                    FileUtils.findJarPath(),"newFilePath")
+                    FileUtils.findJarPath(),"NEW_FILE_PATH")
                     ;
             if(StringUtils.isBlank(newFilePath)){
                 newFilePath = Constants.NEW_FILE_PATH;

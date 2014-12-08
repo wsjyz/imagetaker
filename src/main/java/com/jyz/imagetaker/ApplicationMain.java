@@ -15,12 +15,12 @@ public class ApplicationMain {
 
     protected Logger logger = Logger.getLogger(ApplicationMain.class);
 
-    private static Map<String,String> confMap = AnalysisEvernote.getInstance().listNotes();
+    private static Map<String,Object> confMap = AnalysisEvernote.getInstance().listNotes();
 
     public void runApp(){
 
         String imagePath = FileUtils.getPropertiesValue(
-                 FileUtils.findJarPath(),"uploadImagePath");
+                 FileUtils.findJarPath(),"UPLOAD_IMAGE_PATH");
 
         if(imagePath == null){
             logger.info("没有设置相片上传目录(key=uploadImagePath),使用"+Constants.UPLOAD_IMAGE_PATH);
