@@ -138,19 +138,26 @@ public class AnalysisEvernote {
 	}
 
 	private void getDataByString(Map<String, Object> map, String content) {
-		content=content.replace("************************************************************", "###");
+		content=content.replace("***********************************************************", "###");
 		String[] st = content.split("###");
 		String content2=st[2];
+		content2=content2.replace("style=\"color: #000000; font-family: Tahoma; font-style: normal; font-variant: normal; font-weight: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-align: -webkit-auto; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-size-adjust: auto; -webkit-text-stroke-width: 0px; font-size: medium;\"","");
+		content2=content2.replace("style=\"color: #000000; font-family: Tahoma; font-style: normal; font-variant: normal; font-weight: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-align: -webkit-auto; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-size-adjust: auto; -webkit-text-stroke-width: 0px; font-size: medium; display: inline !important; float: none;\"","");
+		content2=content2.replace("<div >", "<div>");
 		content2=content2.replace("</div><div>", "<br clear=\"none\"/>");
-		content2=content2.replace("<div>", "");
 		content2=content2.replace("</p><p>", "<br clear=\"none\"/>");
+		content2=content2.replace("<div>", "");
 		content2=content2.replace("</div>", "");
 		content2=content2.replace("</en-note>", "");
 		content2=content2.replace("</p>", "");
+		content2=content2.replace("<span >", "");
+		content2=content2.replace("</span>", "");
+		content2=content2.replace("<br clear=\"none\" />", "<br clear=\"none\"/>");
 		String[] str=content2.split("<br clear=\"none\"/>");
 		if (str.length > 0) {
 			for (int i = 1; i < str.length; i++) {
 				String line = str[i];
+				System.out.println(line);
 				if (StringUtils.isNotEmpty(line)) {
 					String[] datas = line.split("=");
 					if (datas[0].trim().equals("ACCESS_KEY") || datas[0].trim().equals("SECRET_KEY") || datas[0].trim().equals("userCounts") ) {
