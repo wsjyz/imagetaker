@@ -2,6 +2,7 @@ package com.jyz.imagetaker.analysisImage;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,14 +12,27 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.common.BitMatrix;
+
 import org.apache.log4j.Logger;
 
 public class ImageCompose {
-
     protected static Logger logger = Logger.getLogger(ImageCompose.class);
-
+    protected static int newImageWidth=0;
     public static String fixImage(String downloadUrl,String srcImgPath,String descImgPath){
         String result = "";
+		try {
+			File fileOne = new File(srcImgPath);
+			BufferedImage ImageOne = ImageIO.read(fileOne);
+			int width = ImageOne.getWidth();// 图片宽度
+			int height = ImageOne.getHeight();// 图片高度
+			if (height>width) {
+				newImageWidth=height/10;
+			}else{
+				newImageWidth=width/10;
+			}
+		} catch (IOException e) {
+			logger.info("解析图片长度出错!");
+		}
         String tdFilePath = getImageGenerate(downloadUrl,srcImgPath);
         getImageCompose(srcImgPath,tdFilePath,descImgPath);
         return result;
@@ -38,7 +52,7 @@ public class ImageCompose {
 			hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
 			hints.put(EncodeHintType.MARGIN, 1);
 			BitMatrix bitMatrix = multiFormatWriter.encode(downloadPath,
-					BarcodeFormat.QR_CODE, 50, 50, hints);
+					BarcodeFormat.QR_CODE, newImageWidth, newImageWidth, hints);
             String imgSuffix = "";
             if(imagePath.contains(".")){
                 imgSuffix = imagePath.substring(imagePath.lastIndexOf(".") + 1);
@@ -82,14 +96,14 @@ public class ImageCompose {
 			// 对第二张图片做相同的处理
 			File fileTwo = new File(tdFilePath);
 			BufferedImage ImageTwo = ImageIO.read(fileTwo);
-			int[] ImageArrayTwo = new int[50 * 50];
-			ImageArrayTwo = ImageTwo.getRGB(0, 0, 50, 50, ImageArrayTwo,
-					0, 50);
+			int[] ImageArrayTwo = new int[newImageWidth * newImageWidth];
+			ImageArrayTwo = ImageTwo.getRGB(0, 0, newImageWidth, newImageWidth, ImageArrayTwo,
+					0, newImageWidth);
 			// 生成新图
 			BufferedImage ImageNew = new BufferedImage(width,height,
 					BufferedImage.TYPE_INT_RGB);
 			ImageNew.setRGB(0, 0, width, height, ImageArrayOne, 0, width);// 设置左半部分的RGB
-			ImageNew.setRGB(width-50, height-50, 50, 50, ImageArrayTwo, 0, 50);// 设置右半部分的RGB
+			ImageNew.setRGB(width-newImageWidth, height-newImageWidth, newImageWidth, newImageWidth, ImageArrayTwo, 0, newImageWidth);// 设置右半部分的RGB
 
             File newFileDirectory = new File(newFilePath);
             if(!newFileDirectory.exists()){
@@ -111,5 +125,4 @@ public class ImageCompose {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-}
+	}}
