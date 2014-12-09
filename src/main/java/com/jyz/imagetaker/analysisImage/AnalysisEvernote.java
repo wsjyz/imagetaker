@@ -157,20 +157,19 @@ public class AnalysisEvernote {
 		if (str.length > 0) {
 			for (int i = 1; i < str.length; i++) {
 				String line = str[i];
-				System.out.println(line);
 				if (StringUtils.isNotEmpty(line)) {
 					String[] datas = line.split("=");
 					if (datas[0].trim().equals("ACCESS_KEY") || datas[0].trim().equals("SECRET_KEY") || datas[0].trim().equals("userCounts") ) {
-						map.put(datas[0].trim(),datas[1].trim());
+						map.put(datas[0].trim(),datas[1].trim().replaceAll(" ",""));
 					}
 					if (datas[0].trim().contains("userName")) {
 						Map<String, String> userMap=new HashMap<String, String>();
 						String bucketName = str[i+1];
 						String[] bucketNameData = bucketName.split("=");
-						userMap.put("bucketName",bucketNameData[1].trim());
+						userMap.put("bucketName",bucketNameData[1].trim().replaceAll(" ",""));
 						String domain = str[i+2];
 						String[] domainData = domain.split("=");
-						userMap.put("domain",domainData[1].trim());
+						userMap.put("domain",domainData[1].trim().replaceAll(" ",""));
 						map.put(datas[1].trim(),userMap);
 					}
 					

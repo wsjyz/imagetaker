@@ -6,8 +6,8 @@ import org.apache.log4j.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.*;
 
 /**
  * 目录监控
@@ -51,6 +51,29 @@ public class PathWorker {
                 key.reset();
             }
         } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void uploadOldImg(String imgPath){
+
+        String newFilePath = FileUtils.getPropertiesValue(
+                FileUtils.findJarPath(),"NEW_FILE_PATH");
+        final List<String> tdFileList =  FileUtils.listDirectoryFiles(newFilePath);
+        try {
+            Files.walkFileTree(Paths.get(imgPath), new SimpleFileVisitor<Path>(){
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    String imageName = file.getFileName().toString();
+                    if(!tdFileList.contains(imageName)){
+                        logger.info("上传之前的图片"+file.toString());
+                        UploadImgTask.addToUploadPool(file.toString());
+                    }
+                    return super.visitFile(file, attrs);
+                }
+            });
+        } catch (IOException e) {
             e.printStackTrace();
         }
 

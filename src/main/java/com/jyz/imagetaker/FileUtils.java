@@ -1,6 +1,10 @@
 package com.jyz.imagetaker;
 
 import java.io.*;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -61,7 +65,7 @@ public class FileUtils {
 
             while ((s = br.readLine() )!=null) {
                 s = s.replaceAll("\\\\", "//");
-                sb.append(s);
+                sb.append(s+"\n");
             }
 
         } catch (IOException e) {
@@ -75,6 +79,22 @@ public class FileUtils {
         }
 
         return sb.toString();
+    }
+
+    public static List<String> listDirectoryFiles(String dirName){
+        final List<String> fileNameList = new ArrayList<String>();
+        try {
+            Files.walkFileTree(Paths.get(dirName), new SimpleFileVisitor<Path>(){
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    fileNameList.add(file.getFileName().toString());
+                    return super.visitFile(file, attrs);
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return fileNameList;
     }
 
 }

@@ -81,11 +81,11 @@ public class UploadImgCallable implements Callable<String> {
             String downloadUrl = null;
             try {
                 downloadUrl = getPolicy.makeRequest(baseUrl, mac);
-                result = downloadUrl;
+                result = downloadUrl.substring(0,downloadUrl.indexOf("?e"));
             } catch (AuthException e) {
                 e.printStackTrace();
             }
-            logger.info("上传成功：" + downloadUrl);
+            logger.info("上传成功：" + result);
 
             String newFilePath = FileUtils.getPropertiesValue(
                     FileUtils.findJarPath(),"NEW_FILE_PATH")

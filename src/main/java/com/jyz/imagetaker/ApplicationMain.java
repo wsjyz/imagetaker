@@ -26,12 +26,13 @@ public class ApplicationMain {
             logger.info("没有设置相片上传目录(key=uploadImagePath),使用"+Constants.UPLOAD_IMAGE_PATH);
             imagePath = Constants.UPLOAD_IMAGE_PATH;
         }
+
         PathWorker worker = new PathWorker();
+        worker.uploadOldImg(imagePath);
         worker.findUploadImg(imagePath);
     }
 
     public static void main(String[] args) {
-        System.out.println(ApplicationMain.confMap.get("ACCESS_KEY"));
         ApplicationMain main = new ApplicationMain();
         main.runApp();
 
