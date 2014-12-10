@@ -1,11 +1,12 @@
 package com.jyz.imagetaker;
 
-import com.jyz.imagetaker.analysisImage.AnalysisEvernote;
+import com.jyz.imagetaker.analysisImage.FtpUtils;
+
 import org.apache.log4j.Logger;
 
 
+
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * 程序入口
@@ -15,7 +16,7 @@ public class ApplicationMain {
 
     protected Logger logger = Logger.getLogger(ApplicationMain.class);
 
-    private static Map<String,Object> confMap = AnalysisEvernote.getInstance().listNotes();
+    private static Map<String,Object> confMap = FtpUtils.getInstance().readFile();
 
     public void runApp(){
 
