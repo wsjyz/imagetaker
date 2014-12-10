@@ -19,7 +19,7 @@ import org.apache.log4j.Logger;
 public class FtpUtils {
 	protected Logger logger = Logger.getLogger(FtpUtils.class);
 
-	private FTPClient ftpClient;
+	private FTPClient ftpClient; 
 	private String fileName, strencoding;
 	private String ip = "66.220.9.50"; // 服务器IP地址
 	private String userName = "viiker"; // 用户
