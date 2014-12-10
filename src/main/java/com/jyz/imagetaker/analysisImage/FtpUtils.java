@@ -116,7 +116,6 @@ public class FtpUtils {
 	}
 
 	/**
-	 * @param fileName
 	 * @return function:从服务器上读取指定的文件
 	 * @throws ParseException
 	 * @throws IOException
@@ -149,7 +148,7 @@ public class FtpUtils {
 								}
 								userMap = new HashMap<String, String>();
 								userMap.put("userName", trim2);
-								userName = trim;
+								userName = trim2;
 
 							} else {
 

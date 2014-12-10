@@ -1,7 +1,8 @@
 package com.jyz.imagetaker;
 
-import com.jyz.imagetaker.analysisImage.AnalysisEvernote;
 
+
+import com.jyz.imagetaker.analysisImage.FtpUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -25,17 +26,17 @@ public class UploadImgTask {
         boolean result = true;
 
         String ak = "";
-        if(AnalysisEvernote.confMap.get("ACCESS_KEY")!= null){
-            ak = AnalysisEvernote.confMap.get("ACCESS_KEY").toString();
+        if(FtpUtils.getInstance().confMap.get("ACCESS_KEY")!= null){
+            ak = FtpUtils.getInstance().confMap.get("ACCESS_KEY").toString();
         }
         String sk = "";
-        if(AnalysisEvernote.confMap.get("SECRET_KEY") != null){
-            sk = AnalysisEvernote.confMap.get("SECRET_KEY").toString();
+        if(FtpUtils.getInstance().confMap.get("SECRET_KEY") != null){
+            sk = FtpUtils.getInstance().confMap.get("SECRET_KEY").toString();
         }
         //获取上传账户信息
         String qnUserName = FileUtils.getPropertiesValue(
                                 FileUtils.findJarPath(),"qnUserName");
-        Map<String,String> userInfoMap = (Map<String,String>)AnalysisEvernote.confMap.get(qnUserName);
+        Map<String,String> userInfoMap = (Map<String,String>)FtpUtils.getInstance().confMap.get(qnUserName);
         String bn = "";
         String domain = "";
         if(userInfoMap == null || userInfoMap.isEmpty()){
@@ -50,7 +51,7 @@ public class UploadImgTask {
             result = false;
         }
         if(result == false){
-            logger.info("服务端存储配置设置错误，请仔细检查（key=ACCESS_KEY、SECRET_KEY、bucketName、domain）");
+            logger.info("用户名不存在，请退出程序，并联系客服解决!");
             ak = Constants.ACCESS_KEY;
             sk = Constants.SECRET_KEY;
             bn = Constants.BUCKET_NAME;
