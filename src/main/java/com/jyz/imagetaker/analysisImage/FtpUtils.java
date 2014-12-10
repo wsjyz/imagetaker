@@ -116,7 +116,6 @@ public class FtpUtils {
 	}
 
 	/**
-	 * @param fileName
 	 * @return function:从服务器上读取指定的文件
 	 * @throws ParseException
 	 * @throws IOException

@@ -1,6 +1,7 @@
 package com.jyz.imagetaker;
 
-import com.jyz.imagetaker.analysisImage.AnalysisEvernote;
+
+import com.jyz.imagetaker.analysisImage.FtpUtils;
 import com.jyz.imagetaker.analysisImage.ImageCompose;
 import com.qiniu.api.auth.AuthException;
 import com.qiniu.api.auth.digest.Mac;
@@ -62,7 +63,7 @@ public class UploadImgCallable implements Callable<String> {
 
         String qnUserName = FileUtils.getPropertiesValue(
                 FileUtils.findJarPath(),"qnUserName");
-        Map<String,String> userInfoMap = (Map<String,String>)AnalysisEvernote.confMap.get(qnUserName);
+        Map<String,String> userInfoMap = (Map<String,String>) FtpUtils.getInstance().confMap.get(qnUserName);
         String bn = userInfoMap.get("bucketName");
 
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
