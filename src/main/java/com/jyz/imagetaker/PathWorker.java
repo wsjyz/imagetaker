@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 目录监控
@@ -16,41 +17,65 @@ import java.util.*;
 public class PathWorker {
 
     protected Logger logger = Logger.getLogger(PathWorker.class);
+
+    //设置只监控图片
+    private PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("regex:([^\\s]+(\\.(?i)(png|PNG|jpg|JPG))$)");
+
+    private WatchService service = null;
+
+    private final Map<WatchKey, Path> directories = new HashMap<>();
+
+    public void watchPath(String dirName){
+
+        File imgPathFile = new File(dirName);
+        if(!imgPathFile.exists()){
+            logger.info("创建"+dirName);
+            imgPathFile.mkdirs();
+        }
+
+        try {
+            service = FileSystems.getDefault().newWatchService();
+            Files.walkFileTree(Paths.get(dirName),new SimpleFileVisitor<Path>(){
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+
+                    if(!dir.getFileName().toString().equals("td")){
+                        logger.info("监控"+dir);
+                        WatchKey key = dir.register(service, StandardWatchEventKinds.ENTRY_CREATE);
+                        directories.put(key,dir);
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     /**
      * 监控某种新增的文件
-     * @param imgPath
      * @return
      */
-    public void findUploadImg(String imgPath){
-        WatchService service = null;
+    public void findUploadImg(){
         try {
 
-            File imgPathFile = new File(imgPath);
-            if(!imgPathFile.exists()){
-                logger.info("创建"+imgPath);
-                imgPathFile.mkdirs();
-            }
-            logger.info("监控"+imgPath);
-            service = FileSystems.getDefault().newWatchService();
-            Path path = Paths.get(imgPath);
-            path.register(service, StandardWatchEventKinds.ENTRY_CREATE);
-            //设置只监控图片
-            PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("regex:([^\\s]+(\\.(?i)(png|PNG|jpg|JPG))$)");
             while (true){
+
                 WatchKey key = service.take();
                 for(WatchEvent<?> event : key.pollEvents()){
 
-                    Path createdPath = (Path)event.context();
-                    if(pathMatcher.matches(createdPath.getFileName())){
-                        createdPath = path.resolve(createdPath);
-                        long size = Files.size(createdPath);
-                        UploadImgTask.addToUploadPool(createdPath.toString());
-                    }
+                    Path fileName = (Path)event.context();
+                    if(pathMatcher.matches(fileName.getFileName())){
+                        Path fileDir = directories.get(key);
+                        Path imgPath = fileDir.resolve(fileName);
+                        UploadImgTask.addToUploadPool(imgPath.toString());
 
+                    }
                 }
+
                 key.reset();
+
             }
-        } catch (IOException | InterruptedException e) {
+        } catch ( InterruptedException e) {
             e.printStackTrace();
         }
 
@@ -66,10 +91,13 @@ public class PathWorker {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     String imageName = file.getFileName().toString();
-                    if(!tdFileList.contains(imageName)){
-                        logger.info("上传之前的图片"+file.toString());
-                        UploadImgTask.addToUploadPool(file.toString());
+                    if(pathMatcher.matches(file.getFileName())){
+                        if(!tdFileList.contains(imageName)){
+                            logger.info("上传之前的图片"+file.toString());
+                            UploadImgTask.addToUploadPool(file.toString());
+                        }
                     }
+
                     return super.visitFile(file, attrs);
                 }
             });

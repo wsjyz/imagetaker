@@ -64,9 +64,13 @@ public class UploadImgCallable implements Callable<String> {
                 FileUtils.findJarPath(),"qnUserName");
         Map<String,String> userInfoMap = (Map<String,String>)AnalysisEvernote.confMap.get(qnUserName);
         String bn = userInfoMap.get("bucketName");
+
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-        String fileName = fileUri.substring(fileUri.lastIndexOf("\\") + 1,fileUri.length());
-        String key = format.format(new Date()) + "/" +bn + "/" + fileName;
+        String imagePath = FileUtils.getPropertiesValue(
+                FileUtils.findJarPath(),"UPLOAD_IMAGE_PATH");
+
+        String key = format.format(new Date()) +  fileUri.substring(
+                fileUri.indexOf(imagePath)+imagePath.length(),fileUri.length());
         logger.info("上传" + fileUri);
         PutRet ret = IoApi.putFile(uptoken, key, fileUri, extra);
         //获取下载地址

@@ -11,6 +11,7 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.common.BitMatrix;
+import com.jyz.imagetaker.FileUtils;
 import org.apache.log4j.Logger;
 
 public class ImageCompose {
@@ -95,7 +96,18 @@ public class ImageCompose {
             if(!newFileDirectory.exists()){
                 newFileDirectory.mkdirs();
             }
-			File outFile = new File(newFilePath+"\\"+fileOne.getName());
+            //下面的代码是创建父级目录
+            String imagePath = FileUtils.getPropertiesValue(
+                    FileUtils.findJarPath(), "UPLOAD_IMAGE_PATH");
+            String newImagePath = newFilePath +"\\" + srcImagePath.substring(
+                    srcImagePath.indexOf(imagePath)+imagePath.length(),srcImagePath.length());
+            File newImageDir = new File(newImagePath.substring(0,newImagePath.lastIndexOf(File.separator)));
+            if(!newImageDir.exists()){
+                newImageDir.mkdirs();
+            }
+
+
+            File outFile = new File(newImagePath);
 
             String imgSuffix = "";
             if(srcImagePath.contains(".")){

@@ -29,7 +29,8 @@ public class ApplicationMain {
 
         PathWorker worker = new PathWorker();
         worker.uploadOldImg(imagePath);
-        worker.findUploadImg(imagePath);
+        worker.watchPath(imagePath);
+        worker.findUploadImg();
     }
 
     public static void main(String[] args) {
