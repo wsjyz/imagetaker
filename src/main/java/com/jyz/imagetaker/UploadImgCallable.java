@@ -1,8 +1,8 @@
 package com.jyz.imagetaker;
 
 
-import com.jyz.imagetaker.analysisImage.FtpUtils;
 import com.jyz.imagetaker.analysisImage.ImageCompose;
+import com.jyz.imagetaker.analysisImage.InitQiNiuUrl;
 import com.qiniu.api.auth.AuthException;
 import com.qiniu.api.auth.digest.Mac;
 import com.qiniu.api.config.Config;
@@ -12,6 +12,7 @@ import com.qiniu.api.io.PutRet;
 import com.qiniu.api.rs.GetPolicy;
 import com.qiniu.api.rs.PutPolicy;
 import com.qiniu.api.rs.URLUtils;
+
 import org.apache.commons.codec.EncoderException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -63,7 +64,7 @@ public class UploadImgCallable implements Callable<String> {
 
         String qnUserName = FileUtils.getPropertiesValue(
                 FileUtils.findJarPath(),"qnUserName");
-        Map<String,String> userInfoMap = (Map<String,String>) FtpUtils.getInstance().confMap.get(qnUserName);
+        Map<String,String> userInfoMap = (Map<String,String>) InitQiNiuUrl.getInstance().confMap.get(qnUserName);
         String bn = userInfoMap.get("bucketName");
 
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");

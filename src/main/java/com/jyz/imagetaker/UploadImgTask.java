@@ -2,9 +2,10 @@ package com.jyz.imagetaker;
 
 
 
-import com.jyz.imagetaker.analysisImage.FtpUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+
+import com.jyz.imagetaker.analysisImage.InitQiNiuUrl;
 
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -26,17 +27,17 @@ public class UploadImgTask {
         boolean result = true;
 
         String ak = "";
-        if(FtpUtils.getInstance().confMap.get("ACCESS_KEY")!= null){
-            ak = FtpUtils.getInstance().confMap.get("ACCESS_KEY").toString();
+        if(InitQiNiuUrl.getInstance().confMap.get("ACCESS_KEY")!= null){
+            ak = InitQiNiuUrl.getInstance().confMap.get("ACCESS_KEY").toString();
         }
         String sk = "";
-        if(FtpUtils.getInstance().confMap.get("SECRET_KEY") != null){
-            sk = FtpUtils.getInstance().confMap.get("SECRET_KEY").toString();
+        if(InitQiNiuUrl.getInstance().confMap.get("SECRET_KEY") != null){
+            sk = InitQiNiuUrl.getInstance().confMap.get("SECRET_KEY").toString();
         }
         //获取上传账户信息
         String qnUserName = FileUtils.getPropertiesValue(
                                 FileUtils.findJarPath(),"qnUserName");
-        Map<String,String> userInfoMap = (Map<String,String>)FtpUtils.getInstance().confMap.get(qnUserName);
+        Map<String,String> userInfoMap = (Map<String,String>)InitQiNiuUrl.getInstance().confMap.get(qnUserName);
         String bn = "";
         String domain = "";
         if(userInfoMap == null || userInfoMap.isEmpty()){
