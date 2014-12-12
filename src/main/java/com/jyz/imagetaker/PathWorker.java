@@ -90,13 +90,17 @@ public class PathWorker {
             Files.walkFileTree(Paths.get(imgPath), new SimpleFileVisitor<Path>(){
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    String imageName = file.getFileName().toString();
-                    if(pathMatcher.matches(file.getFileName())){
-                        if(!tdFileList.contains(imageName)){
-                            logger.info("上传之前的图片"+file.toString());
-                            UploadImgTask.addToUploadPool(file.toString());
+                    String parentDir = file.getParent().getFileName().toString();
+                    if(!parentDir.equals("td")){
+                        String imageName = file.getFileName().toString();
+                        if(pathMatcher.matches(file.getFileName())){
+                            if(!tdFileList.contains(imageName)){
+                                logger.info("上传之前的图片"+file.toString());
+                                UploadImgTask.addToUploadPool(file.toString());
+                            }
                         }
                     }
+
 
                     return super.visitFile(file, attrs);
                 }

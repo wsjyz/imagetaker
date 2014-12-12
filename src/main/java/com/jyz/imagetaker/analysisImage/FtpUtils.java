@@ -22,7 +22,7 @@ public class FtpUtils {
 	private FTPClient ftpClient; 
 	private String fileName, strencoding;
 	private String ip = "66.220.9.50"; // 服务器IP地址
-	private String userName = "viiker"; // 用户
+	private String userName = "viisoo"; // 用户
 	private String userPwd = "nji98uhb"; // 密码
 	private int port = 21; // 端口
 	private String path = "/workshop/"; // 读取文件的存放目
@@ -62,6 +62,7 @@ public class FtpUtils {
 			String userPwd, String path) {
 		ftpClient = new FTPClient();
 		try {
+            ftpClient.setConnectTimeout(5*60*1000);
 			// 连接
 			ftpClient.connect(ip, port);
 			// 登录
@@ -173,6 +174,7 @@ public class FtpUtils {
 			}
 			ftpClient.getReply();
 		} catch (IOException e) {
+            e.printStackTrace();
             logger.error("解析配置文件出错");
 		}
 		return confMap;
