@@ -1,10 +1,12 @@
 package com.jyz.imagetaker;
 
-import com.jyz.imagetaker.analysisImage.FtpUtils;
 
 import org.apache.log4j.Logger;
 
 
+
+
+import com.jyz.imagetaker.analysisImage.InitQiNiuUrl;
 
 import java.util.Map;
 
@@ -16,7 +18,7 @@ public class ApplicationMain {
 
     protected Logger logger = Logger.getLogger(ApplicationMain.class);
 
-    private static Map<String,Object> confMap = FtpUtils.getInstance().readFile();
+    private static Map<String,Object> confMap = InitQiNiuUrl.getInstance().readUrl();
 
     public void runApp(){
 
