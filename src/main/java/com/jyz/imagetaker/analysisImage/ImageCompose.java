@@ -27,9 +27,9 @@ public class ImageCompose {
 			int width = ImageOne.getWidth();// 图片宽度
 			int height = ImageOne.getHeight();// 图片高度
 			if (height>width) {
-				newImageWidth=height/10;
-			}else{
 				newImageWidth=width/10;
+			}else{
+				newImageWidth=height/10;
 			}
 		} catch (IOException e) {
 			logger.info("解析图片长度出错!");
