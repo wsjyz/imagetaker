@@ -69,7 +69,7 @@ public class InitQiNiuUrl {
 				}
 			}
 		} catch (Exception e) {
-			logger.info("解析文件出错！");
+			logger.info("解析配置文件出错！");
 		}
 		return confMap;
 

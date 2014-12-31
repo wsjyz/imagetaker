@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import com.jyz.imagetaker.analysisImage.InitQiNiuUrl;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
@@ -27,11 +28,17 @@ public class UploadImgTask {
         boolean result = true;
 
         String ak = "";
-        if(InitQiNiuUrl.getInstance().confMap.get("ACCESS_KEY")!= null){
+        Object akObj = InitQiNiuUrl.getInstance().confMap.get("ACCESS_KEY");
+        if(akObj == null){
+            ak = Constants.ACCESS_KEY;
+        }else{
             ak = InitQiNiuUrl.getInstance().confMap.get("ACCESS_KEY").toString();
         }
         String sk = "";
-        if(InitQiNiuUrl.getInstance().confMap.get("SECRET_KEY") != null){
+        Object skObj = InitQiNiuUrl.getInstance().confMap.get("SECRET_KEY");
+        if( skObj == null){
+            sk = Constants.SECRET_KEY;
+        }else{
             sk = InitQiNiuUrl.getInstance().confMap.get("SECRET_KEY").toString();
         }
         //获取上传账户信息

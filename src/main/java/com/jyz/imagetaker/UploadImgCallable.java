@@ -18,6 +18,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -66,20 +70,32 @@ public class UploadImgCallable implements Callable<String> {
                 FileUtils.findJarPath(),"qnUserName");
         Map<String,String> userInfoMap = (Map<String,String>) InitQiNiuUrl.getInstance().confMap.get(qnUserName);
         String bn = userInfoMap.get("bucketName");
-
+        //压缩图片
+        String smallImageUri = fileUri.substring(0,fileUri.lastIndexOf("."))+"_small"
+                +fileUri.substring(fileUri.lastIndexOf("."),fileUri.length());
+        ImageCompose.getScaledInstance(fileUri, smallImageUri, true);
+        //组装key
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
         String imagePath = FileUtils.getPropertiesValue(
                 FileUtils.findJarPath(),"UPLOAD_IMAGE_PATH");
 
-        String key = format.format(new Date()) +  fileUri.substring(
+        StringBuilder key = new StringBuilder("");
+        key.append(format.format(new Date()));
+
+        String fileXUri = fileUri.substring(
                 fileUri.indexOf(imagePath)+imagePath.length(),fileUri.length());
-        logger.info("上传" + fileUri);
-        PutRet ret = IoApi.putFile(uptoken, key, fileUri, extra);
+        if(!fileXUri.endsWith("\\")){
+            key.append("\\");
+        }
+        key.append(fileXUri);
+
+        logger.info("上传" + fileUri+" key："+key.toString());
+        PutRet ret = IoApi.putFile(uptoken, key.toString(), smallImageUri, extra);
         //获取下载地址
         if(ret.ok()){
             String baseUrl = null;
             try {
-                baseUrl = URLUtils.makeBaseUrl(domain, key);
+                baseUrl = URLUtils.makeBaseUrl(domain, key.toString());
             } catch (EncoderException e) {
                 e.printStackTrace();
             }
@@ -100,7 +116,12 @@ public class UploadImgCallable implements Callable<String> {
                 newFilePath = Constants.NEW_FILE_PATH;
                 logger.error("没有设置新文件存放路径(key=newFilePath),使用默认路径"+Constants.NEW_FILE_PATH);
             }
-            ImageCompose.fixImage(downloadUrl,fileUri,newFilePath);
+            ImageCompose.fixImage(result,fileUri,newFilePath);
+
+            File smallImageFile = new File(smallImageUri);
+            if(smallImageFile.exists()){
+                smallImageFile.delete();
+            }
         }else{
 
             result = ret.getResponse();

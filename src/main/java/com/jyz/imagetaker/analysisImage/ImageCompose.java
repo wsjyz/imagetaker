@@ -1,18 +1,24 @@
 package com.jyz.imagetaker.analysisImage;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
-import javax.imageio.ImageIO;
+import javax.imageio.*;
+import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.ImageOutputStream;
+import javax.imageio.stream.MemoryCacheImageOutputStream;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.common.BitMatrix;
 import com.jyz.imagetaker.FileUtils;
+
+
 import org.apache.log4j.Logger;
 
 public class ImageCompose {
@@ -90,7 +96,8 @@ public class ImageCompose {
 			BufferedImage ImageOne = ImageIO.read(fileOne);
 			int width = ImageOne.getWidth();// 图片宽度
 			int height = ImageOne.getHeight();// 图片高度
-			// 从图片中读取RGB
+            //System.out.println(srcImagePath + " "+width + " "+height);
+            // 从图片中读取RGB
 			int[] ImageArrayOne = new int[width * height];
 			ImageArrayOne = ImageOne.getRGB(0, 0, width, height, ImageArrayOne,
 					0, width);
@@ -98,7 +105,8 @@ public class ImageCompose {
 			File fileTwo = new File(tdFilePath);
 			BufferedImage ImageTwo = ImageIO.read(fileTwo);
 			int[] ImageArrayTwo = new int[newImageWidth * newImageWidth];
-			ImageArrayTwo = ImageTwo.getRGB(0, 0, newImageWidth, newImageWidth, ImageArrayTwo,
+            //System.out.println(newImageWidth);
+            ImageArrayTwo = ImageTwo.getRGB(0, 0, newImageWidth, newImageWidth, ImageArrayTwo,
 					0, newImageWidth);
 			// 生成新图
 			BufferedImage ImageNew = new BufferedImage(width,height,
@@ -128,8 +136,8 @@ public class ImageCompose {
                 imgSuffix = srcImagePath.substring(srcImagePath.lastIndexOf(".") + 1);
             }
 
-			ImageIO.write(ImageNew, imgSuffix, outFile);// 写图
-
+			//ImageIO.write(ImageNew, imgSuffix, outFile);// 写图
+            writeJPG(ImageNew, new FileOutputStream(newImagePath), 1.0f);
             //删除二维码
             fileTwo.delete();
             logger.info(srcImagePath+" 二维码生成完毕");
@@ -138,4 +146,94 @@ public class ImageCompose {
 			e.printStackTrace();
 		}
 	}
+
+    public static void getScaledInstance(String srcImagePath,String targetImagePath, boolean higherQuality){
+        BufferedImage img = null;
+        try {
+            img = ImageIO.read(new File(srcImagePath));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        int type =
+                (img.getTransparency() == Transparency.OPAQUE)
+                        ? BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB;
+        BufferedImage ret = (BufferedImage) img;
+        int w = img.getWidth(),h = img.getHeight();
+        if(img.getWidth() > img.getHeight() && img.getWidth() > 1200){
+            w = 1200;
+            h = img.getHeight() * 1200/img.getWidth();
+        }else if(img.getWidth() < img.getHeight() && img.getHeight() > 1200){
+            w = img.getWidth() * 1200/img.getHeight();
+            h = 1200;
+        }
+        int targetWidth = w;
+        int targetHeight = h;
+        do{
+            if (higherQuality && w > targetWidth){
+                w /= 2;
+                if (w < targetWidth){
+                    w = targetWidth;
+                }
+            }
+
+            if (higherQuality && h > targetHeight){
+                h /= 2;
+                if (h < targetHeight){
+                    h = targetHeight;
+                }
+            }
+
+            BufferedImage tmp = new BufferedImage(w, h, type);
+            Graphics2D g2 = tmp.createGraphics();
+            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            g2.drawImage(ret, 0, 0, w, h, null);
+            g2.dispose();
+
+            ret = tmp;
+        } while (w != targetWidth || h != targetHeight);
+        try {
+            writeJPG(ret, new FileOutputStream(targetImagePath), 0.9f);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public static void writeJPG(
+            BufferedImage bufferedImage,
+            OutputStream outputStream,
+            float quality){
+        Iterator<ImageWriter> iterator =
+                ImageIO.getImageWritersByFormatName("jpg");
+        ImageWriter imageWriter = iterator.next();
+        ImageWriteParam imageWriteParam = imageWriter.getDefaultWriteParam();
+        imageWriteParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+        imageWriteParam.setCompressionQuality(quality);
+        ImageOutputStream imageOutputStream =
+                new MemoryCacheImageOutputStream(outputStream);
+        imageWriter.setOutput(imageOutputStream);
+        IIOImage iioimage = new IIOImage(bufferedImage, null, null);
+        try {
+            imageWriter.write(null, iioimage, imageWriteParam);
+            imageOutputStream.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally{
+            try {
+                imageOutputStream.close();
+                outputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+    }
+
+
+    public static void main(String[] args) {
+
+        ImageCompose.getScaledInstance("C:\\uploadImagePath\\d.jpg","C:\\uploadImagePath\\d1.jpg",true);
+
+    }
 }
