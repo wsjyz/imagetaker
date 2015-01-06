@@ -83,6 +83,8 @@ public class ImageCompose {
 		}
         return tdFilePath;
 	}
+
+	
 	/**
 	 * 合成2张图片成为新图片
 	 * @param srcImagePath 主图片路径
@@ -96,28 +98,16 @@ public class ImageCompose {
 			BufferedImage ImageOne = ImageIO.read(fileOne);
 			int width = ImageOne.getWidth();// 图片宽度
 			int height = ImageOne.getHeight();// 图片高度
-            //System.out.println(srcImagePath + " "+width + " "+height);
-            // 从图片中读取RGB
-			int[] ImageArrayOne = new int[width * height];
-			ImageArrayOne = ImageOne.getRGB(0, 0, width, height, ImageArrayOne,
-					0, width);
-			// 对第二张图片做相同的处理
+			// 读取第二张图
 			File fileTwo = new File(tdFilePath);
 			BufferedImage ImageTwo = ImageIO.read(fileTwo);
-            //System.out.println(tdFilePath + " "+ImageTwo.getWidth() + " "+ImageTwo.getHeight()+" "+newImageWidth);
             newImageWidth = ImageTwo.getWidth();
 			int[] ImageArrayTwo = new int[newImageWidth * newImageWidth];
-            //System.out.println(newImageWidth);
+			//解析第二张图
             ImageArrayTwo = ImageTwo.getRGB(0, 0, newImageWidth, newImageWidth, ImageArrayTwo,
 					0, newImageWidth);
 			// 生成新图
-			BufferedImage ImageNew = new BufferedImage(width,height,
-					BufferedImage.TYPE_INT_RGB);
-			ImageNew.setRGB(0, 0, width, height, ImageArrayOne, 0, width);// 设置左半部分的RGB
-            if(ImageTwo.getWidth() < newImageWidth){
-                newImageWidth = ImageTwo.getWidth();
-            }
-			ImageNew.setRGB(width-newImageWidth, height-newImageWidth, newImageWidth, newImageWidth,
+            ImageOne.setRGB(width-newImageWidth, height-newImageWidth, newImageWidth, newImageWidth,
                     ImageArrayTwo, 0, newImageWidth);// 设置右半部分的RGB
 
             File newFileDirectory = new File(newFilePath);
@@ -143,7 +133,7 @@ public class ImageCompose {
             }
 
 			//ImageIO.write(ImageNew, imgSuffix, outFile);// 写图
-            writeJPG(ImageNew, new FileOutputStream(newImagePath), 1.0f);
+            writeJPG(ImageOne, new FileOutputStream(newImagePath), 1.0f);
             //删除二维码
             fileTwo.delete();
             logger.info(srcImagePath+" 二维码生成完毕");
@@ -152,7 +142,6 @@ public class ImageCompose {
 			e.printStackTrace();
 		}
 	}
-
     public static void getScaledInstance(String srcImagePath,String targetImagePath, boolean higherQuality){
         BufferedImage img = null;
         try {
@@ -239,7 +228,7 @@ public class ImageCompose {
 
     public static void main(String[] args) {
 
-        ImageCompose.getScaledInstance("C:\\uploadImagePath\\d.jpg","C:\\uploadImagePath\\d1.jpg",true);
-
+        //ImageCompose.getScaledInstance("C:\\uploadImagePath\\d.jpg","C:\\uploadImagePath\\d1.jpg",true);
+    	ImageCompose.fixImage("www.baidu.com", "C:\\Users\\heli\\Desktop\\testpic\\testpic\\IMGP5415.jpg", "C:\\Users\\heli\\Desktop\\testpic\\1");
     }
 }
