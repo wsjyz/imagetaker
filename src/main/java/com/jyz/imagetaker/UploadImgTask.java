@@ -21,7 +21,7 @@ public class UploadImgTask {
 
     protected static Logger logger = Logger.getLogger(UploadImgTask.class);
 
-    private static ExecutorService exec = Executors.newFixedThreadPool(10);
+    private static ExecutorService exec = Executors.newFixedThreadPool(5);
 
     public static void addToUploadPool(String filePath) {
 
@@ -66,7 +66,7 @@ public class UploadImgTask {
             domain = Constants.DOMAIN;
         }
 
-        UploadImgCallable callable = new UploadImgCallable(ak, sk, bn, filePath, domain);
+       UploadImgCallable callable = new UploadImgCallable(ak, sk, bn, filePath, domain);
         FutureTask<String> task = new FutureTask<String>(callable);
         if (!exec.isShutdown()) {
             exec.submit(task);

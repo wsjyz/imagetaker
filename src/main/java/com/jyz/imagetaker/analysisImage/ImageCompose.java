@@ -104,6 +104,8 @@ public class ImageCompose {
 			// 对第二张图片做相同的处理
 			File fileTwo = new File(tdFilePath);
 			BufferedImage ImageTwo = ImageIO.read(fileTwo);
+            //System.out.println(tdFilePath + " "+ImageTwo.getWidth() + " "+ImageTwo.getHeight()+" "+newImageWidth);
+            newImageWidth = ImageTwo.getWidth();
 			int[] ImageArrayTwo = new int[newImageWidth * newImageWidth];
             //System.out.println(newImageWidth);
             ImageArrayTwo = ImageTwo.getRGB(0, 0, newImageWidth, newImageWidth, ImageArrayTwo,
@@ -112,7 +114,11 @@ public class ImageCompose {
 			BufferedImage ImageNew = new BufferedImage(width,height,
 					BufferedImage.TYPE_INT_RGB);
 			ImageNew.setRGB(0, 0, width, height, ImageArrayOne, 0, width);// 设置左半部分的RGB
-			ImageNew.setRGB(width-newImageWidth, height-newImageWidth, newImageWidth, newImageWidth, ImageArrayTwo, 0, newImageWidth);// 设置右半部分的RGB
+            if(ImageTwo.getWidth() < newImageWidth){
+                newImageWidth = ImageTwo.getWidth();
+            }
+			ImageNew.setRGB(width-newImageWidth, height-newImageWidth, newImageWidth, newImageWidth,
+                    ImageArrayTwo, 0, newImageWidth);// 设置右半部分的RGB
 
             File newFileDirectory = new File(newFilePath);
             if(!newFileDirectory.exists()){

@@ -5,10 +5,11 @@ import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.*;
 
 /**
  * 目录监控
@@ -23,9 +24,10 @@ public class PathWorker {
 
     private WatchService service = null;
 
-    private final Map<WatchKey, Path> directories = new HashMap<>();
+    private final Map<WatchKey, Path> directories = new ConcurrentHashMap<>();
 
-    private final Map<String,Integer> imgModifyEventCountMap = new ConcurrentHashMap<String,Integer>();
+    //private BlockingQueue<String> imgQueue = new ArrayBlockingQueue<String>(10);
+    private Map<String,String> imgCache = new HashMap<String,String>();
 
     public PathWorker(){
         try {
@@ -52,7 +54,8 @@ public class PathWorker {
                         logger.info("监控"+dir);
                         WatchKey key = dir.register(service,
                                 StandardWatchEventKinds.ENTRY_CREATE,
-                                StandardWatchEventKinds.ENTRY_MODIFY);
+                                StandardWatchEventKinds.ENTRY_MODIFY,
+                                StandardWatchEventKinds.OVERFLOW);
                         directories.put(key,dir);
                     }
                     return FileVisitResult.CONTINUE;
@@ -76,48 +79,53 @@ public class PathWorker {
                 for(WatchEvent<?> event : key.pollEvents()){
                     final WatchEvent.Kind<?> kind = event.kind();
                     Path fileName = (Path)event.context();
+                    Path imgDir = directories.get(key);
+                    Path imgPath = imgDir.resolve(fileName);
+
+                    if(kind == StandardWatchEventKinds.OVERFLOW){
+                        continue;
+                    }
 
                     if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
-
                         final Path directory_path = directories.get(key);
                         final Path child = directory_path.resolve(fileName);
 
                         if (Files.isDirectory(child, LinkOption.NOFOLLOW_LINKS)) {
                             watchPath(child.toString());
-                            uploadOldImg(child.toString());
+                            //uploadOldImg(child.toString());
                         }
+
+
                     }else if(kind == StandardWatchEventKinds.ENTRY_MODIFY){
-                            //判断是否是第二次modify
-                            if(pathMatcher.matches(fileName.getFileName())
-                                    && fileName.getFileName().toString().indexOf("_small") == -1){
-                                Integer modifyCount = imgModifyEventCountMap.get(fileName.getFileName().toString());
-                                if(modifyCount == null){
-                                    modifyCount = 0;
-                                }
-                                if( modifyCount < 1){
-                                    modifyCount = modifyCount + 1;
-                                    imgModifyEventCountMap.put(fileName.getFileName().toString(),modifyCount);
-                                }else{
-                                    Path fileDir = directories.get(key);
-                                    Path imgPath = fileDir.resolve(fileName);
-                                    UploadImgTask.addToUploadPool(imgPath.toString());
-                                    imgModifyEventCountMap.remove(fileName.getFileName().toString());
-                                }
 
 
+
+                    }
+                    if(pathMatcher.matches(fileName.getFileName())
+                            && fileName.getFileName().toString().indexOf("_small") == -1){
+
+                        //System.out.println(imgPath.toString()+" "+kind+" "+imgCache.get(imgPath.toString())+" "+Files.exists(imgPath));
+                        if(Files.exists(imgPath)){
+
+                            if(imgCache.get(imgPath.toString()) == null){
+                                System.out.println(imgPath.toString()+" upload");
+                                imgCache.put(imgPath.toString(), imgPath.toString());
+                                //UploadImgTask.addToUploadPool(imgPath.toString());
                             }
+
+                        }
 
                     }
 
                 }
                 key.reset();
-
             }
         } catch ( InterruptedException e) {
             e.printStackTrace();
         }
 
     }
+
 
     public void uploadOldImg(String imgPath){
 

@@ -31,7 +31,7 @@ import java.util.concurrent.Callable;
  * 上传图片单个任务
  * Created by dam on 2014/11/19.
  */
-public class UploadImgCallable implements Callable<String> {
+public class UploadImgCallable implements Callable<String>{
 
     protected static Logger logger = Logger.getLogger(UploadImgCallable.class);
 
@@ -49,7 +49,7 @@ public class UploadImgCallable implements Callable<String> {
         this.domain = dm;
     }
     @Override
-    public String call() throws Exception {
+    public String call() {
         String result = "";
         Config.ACCESS_KEY = accessKey;
         Config.SECRET_KEY = secretKey;

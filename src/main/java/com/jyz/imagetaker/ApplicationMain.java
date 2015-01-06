@@ -50,10 +50,14 @@ public class ApplicationMain {
 
         if(result){
 
-            PathWorker worker = new PathWorker();
+//            PathWorker worker = new PathWorker();
+//            worker.uploadOldImg(imagePath);
+//            worker.watchPath(imagePath);
+//            worker.findUploadImg();
+            CommonPathWorker worker = new CommonPathWorker();
             worker.uploadOldImg(imagePath);
             worker.watchPath(imagePath);
-            worker.findUploadImg();
+
         }else{
             logger.info("用户名不存在，请退出程序，并联系客服解决!");
 
