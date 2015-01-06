@@ -9,6 +9,8 @@ import org.apache.log4j.Logger;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -18,10 +20,17 @@ public class CommonPathWorker {
 
     protected Logger logger = Logger.getLogger(CommonPathWorker.class);
 
+    private static BlockingQueue<String> imgQueue = new ArrayBlockingQueue<String>(20);
+
     public void watchPath(String dirName){
         logger.info("监控"+dirName);
+        for(int i = 0;i < 5;i ++){
+            Consumer consumer = new Consumer();
+            consumer.start();
+        }
         // 轮询间隔 5 秒
         long interval = TimeUnit.SECONDS.toMillis(5);
+        //long interval = TimeUnit.MINUTES.toMillis(10);
         // 创建一个文件观察器用于处理文件的格式
 
         // Create a FileFilter
@@ -72,6 +81,23 @@ public class CommonPathWorker {
             }
         }
     }
+    class Consumer extends Thread{
+
+        public void run(){
+            consume();
+        }
+        private void consume() {
+            while(true){
+                try {
+
+                    UploadImgTask.addToUploadPool(imgQueue.take());
+                    System.out.println("从队列取走一个，队列剩余"+imgQueue.size()+"个");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
     private static class FileMonitorFileListener extends FileAlterationListenerAdaptor {
         /**
          * 文件创建执行
@@ -80,7 +106,12 @@ public class CommonPathWorker {
         public void onFileCreate(File file) {
             System.out.println("[探测到]:" + file.getAbsolutePath());
 
-            UploadImgTask.addToUploadPool(file.getAbsolutePath());
+            //UploadImgTask.addToUploadPool(file.getAbsolutePath());
+            try {
+                imgQueue.put(file.getAbsolutePath());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         /**
