@@ -14,7 +14,7 @@ public class InitQiNiuUrl {
     protected static Logger logger = Logger.getLogger(InitQiNiuUrl.class);
 	public static Map<String, Object> confMap;
 	private static InitQiNiuUrl instance;
-	private static String urlPath="http://viisoo.qiniudn.com/Config.txt";
+	private static String urlPath="http://7sbohb.com1.z0.glb.clouddn.com/Config.txt";
 	private static String splitKey="#!";
 	public static InitQiNiuUrl getInstance() {
 		if (instance == null) {

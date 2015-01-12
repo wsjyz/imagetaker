@@ -22,6 +22,23 @@ public class CommonPathWorker {
 
     private static BlockingQueue<String> imgQueue = new ArrayBlockingQueue<String>(20);
 
+    IOFileFilter directories = FileFilterUtils.and(
+            FileFilterUtils.directoryFileFilter(),
+            FileFilterUtils.notFileFilter(new NameFileFilter("td")),
+            HiddenFileFilter.VISIBLE);
+
+    IOFileFilter jpgFiles = FileFilterUtils.and(
+            FileFilterUtils.fileFileFilter(),
+            FileFilterUtils.suffixFileFilter(".jpg"),
+            FileFilterUtils.notFileFilter(new WildcardFileFilter("*_small*")));
+
+    IOFileFilter JPGiles = FileFilterUtils.and(
+            FileFilterUtils.fileFileFilter(),
+            FileFilterUtils.suffixFileFilter(".JPG"),
+            FileFilterUtils.notFileFilter(new WildcardFileFilter("*_small*")));
+
+    IOFileFilter filter = FileFilterUtils.or(directories, jpgFiles,JPGiles);
+
     public void watchPath(String dirName){
         logger.info("监控"+dirName);
         for(int i = 0;i < 5;i ++){
@@ -32,25 +49,6 @@ public class CommonPathWorker {
         long interval = TimeUnit.SECONDS.toMillis(5);
         //long interval = TimeUnit.MINUTES.toMillis(10);
         // 创建一个文件观察器用于处理文件的格式
-
-        // Create a FileFilter
-
-        IOFileFilter directories = FileFilterUtils.and(
-                FileFilterUtils.directoryFileFilter(),
-                FileFilterUtils.notFileFilter(new NameFileFilter("td")),
-                HiddenFileFilter.VISIBLE);
-
-        IOFileFilter jpgFiles = FileFilterUtils.and(
-                FileFilterUtils.fileFileFilter(),
-                FileFilterUtils.suffixFileFilter(".jpg"),
-                FileFilterUtils.notFileFilter(new WildcardFileFilter("*_small*")));
-
-        IOFileFilter JPGiles = FileFilterUtils.and(
-                FileFilterUtils.fileFileFilter(),
-                FileFilterUtils.suffixFileFilter(".JPG"),
-                FileFilterUtils.notFileFilter(new WildcardFileFilter("*_small*")));
-
-        IOFileFilter filter = FileFilterUtils.or(directories, jpgFiles,JPGiles);
 
         // Create the File system observer and register File Listeners
         FileAlterationObserver observer = new FileAlterationObserver(
@@ -70,12 +68,15 @@ public class CommonPathWorker {
         String newFilePath = FileUtils.getPropertiesValue(
                 FileUtils.findJarPath(), "NEW_FILE_PATH");
         final List<String> tdFileList = FileUtils.listDirectoryFiles(newFilePath);
-
-        List<File> files = (List<File>)org.apache.commons.io.FileUtils.listFiles(new File(imgPath),
-                TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
+        String[] extensions = {"jpg", "JPG"};
+        List<File> files = (List<File>)org.apache.commons.io.FileUtils.listFiles(new File(imgPath),extensions,true);
         for(File file : files){
             String imageName = file.getName();
-            if(!tdFileList.contains(imageName)){
+            String parentDir = file.getParent();
+            if(!tdFileList.contains(imageName) &&
+                    imageName.indexOf("_small") == -1 &&
+                    imageName.indexOf("_td") == -1&&
+                    parentDir.indexOf("\\td") == -1){
                 logger.info("上传之前的图片"+file.toString());
                 UploadImgTask.addToUploadPool(file.toString());
             }
